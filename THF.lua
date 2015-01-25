@@ -87,8 +87,8 @@ function init_gear_sets()
     --------------------------------------
 
     sets.TreasureHunter = {hands="Plun. Armlets +1", waist="Chaac Belt", feet="Raider's Poulaines +2"}
-    sets.ExtraRegen = {head="Ocelomeh Headpiece +1", back="Scuta Cape"}
-	sets.ExtraRefresh = {head="Wivre Hairpin"}
+    sets.ExtraRegen = {head="Ocelomeh Headpiece +1", neck="Wiglen Gorget", ring2="Paguroidea Ring", back="Scuta Cape"}
+	--sets.ExtraRefresh = {head="Wivre Hairpin"}
     sets.Kiting = {feet="Jute Boots +1"}	
 	sets.Slept = {head="Frenzy Sallet"}	 
 	sets.ReiveNeck = {neck="Adoulin's Refuge +1"}
@@ -229,7 +229,7 @@ function init_gear_sets()
 		back="Cavaros Mantle",
 		waist="Artful Belt"})
 
-	sets.precast.WS['Evisceration'].Acc = set_combine(sets.precast.WS['Evisceration'], {back="Letalis Mantle"})
+	sets.precast.WS['Evisceration'].Acc = set_combine(sets.precast.WS['Evisceration'], {ammo="Honed Tathlum",ear1="Zennaroi Earring",body="Pillager's Vest +1",waist="Caudata Belt",back="Letalis Mantle"})
 	sets.precast.WS['Evisceration'].Mod = set_combine(sets.precast.WS['Evisceration'], {
 		head="Uk'uxkaj cap",
 		neck="Rancor Collar",
@@ -255,7 +255,7 @@ function init_gear_sets()
 		ring2="Karieyh Ring",
 		back="Kayapa Cape",
 		waist="Artful Belt"})
-	sets.precast.WS["Rudra's Storm"].Acc = set_combine(sets.precast.WS["Rudra's Storm"], {ammo="Ginsen",ear1="Zennaroi Earring",body="Pillager's Vest +1",waist="Caudata Belt",back="Letalis Mantle"})
+	sets.precast.WS["Rudra's Storm"].Acc = set_combine(sets.precast.WS["Rudra's Storm"], {ammo="Honed Tathlum",ear1="Zennaroi Earring",body="Pillager's Vest +1",waist="Caudata Belt",back="Letalis Mantle"})
 	sets.precast.WS["Rudra's Storm"].Mod = set_combine(sets.precast.WS["Rudra's Storm"], {
 		ammo="Jukukik Feather",
 		head="Pillager's Bonnet +1",
@@ -331,7 +331,7 @@ function init_gear_sets()
     -- Idle sets (default idle set not needed since the other three are defined, but leaving for testing purposes)
 
     sets.idle = {
-		--ammo="Ginsen",
+		ammo="Ginsen",
 		head="Felistris Mask",
 		neck="Wiglen Gorget",
 		ear1="Dudgeon Earring",
@@ -346,14 +346,14 @@ function init_gear_sets()
 		feet="Jute Boots +1"}
 
 	sets.idle.Town = {		
-		--range="Wingcutter +1",
+		ammo="Ginsen",
 		head="Imp. Wing Hair. +1",
 		neck="Asperity Necklace",
 		ear1="Dudgeon Earring",
 		ear2="Heartseeker Earring",
 		body="Mekosu. Harness",
 		hands="Aeto. Gloves +1",
-		ring1="Oneiros Ring",
+		ring1="Sheltered Ring",
 		ring2="Karieyh Ring",
 		back="Bleating Mantle",
 		waist="Patentia Sash",
@@ -443,7 +443,7 @@ function init_gear_sets()
 		legs="Pill. Culottes +1",
 		feet="Plun. Poulaines +1"}
 	sets.engaged.Acc = {
-		ammo="Ginsen",
+		ammo="Honed Tathlum",
 		head="Whirlpool Mask",
 		neck="Iqabi necklace",
 		ear1="Zennaroi Earring",
@@ -517,7 +517,7 @@ function init_gear_sets()
 		head="Felistris Mask",neck="Twilight Torque",ear1="Dudgeon Earring",ear2="Heartseeker Earring",
 		body="Iuitl Vest",hands="Pill. Armlets +1",ring1="Defending Ring",ring2="Epona's Ring",
 		back="Iximulew Cape",waist="Patentia Sash",legs="Iuitl Tights",feet="Qaaxo Leggings"}
-	sets.engaged.Acc.PDT = {ammo="Ginsen",
+	sets.engaged.Acc.PDT = {ammo="Honed Tathlum",
 		head="Whirlpool Mask",neck="Twilight Torque",ear1="Dudgeon Earring",ear2="Heartseeker Earring",
 		body="Iuitl Vest",hands="Pill. Armlets +1",ring1="Defending Ring",ring2="Epona's Ring",
 		back="Canny Cape",waist="Hurch'lan Sash",legs="Iuitl Tights",feet="Qaaxo Leggings"}
@@ -627,8 +627,12 @@ end
 -- Called any time we attempt to handle automatic gear equips (ie: engaged or idle gear).
 function job_handle_equipping_gear(playerStatus, eventArgs)
     -- Check that ranged slot is locked, if necessary
-    check_range_lock()
-
+    --check_range_lock()
+	if player.equipment.range ~= 'empty' then
+        disable('range', 'ammo')
+    else
+        enable('range', 'ammo')
+    end
     -- Check for SATA when equipping gear.  If either is active, equip
     -- that gear specifically, and block equipping default gear.
     check_buff('Sneak Attack', eventArgs)
@@ -643,12 +647,12 @@ end
 
 
 function customize_idle_set(idleSet)
-    if player.hpp < 80 then
+    if player.hpp < 75 then
         idleSet = set_combine(idleSet, sets.ExtraRegen)
     end
-	if player.mp < 100 then --If MP gets below 100 & Idle it will equip refresh set (For Oneiros Ring latent)
-		idleSet = sets.ExtraRefresh
-	end
+	--if player.mp < 100 then --If MP gets below 100 & Idle it will equip refresh set (For Oneiros Ring latent)
+		--idleSet = sets.ExtraRefresh
+	--end
 
     return idleSet
 end
@@ -739,14 +743,14 @@ end
 
 
 -- Function to lock the ranged slot if we have a ranged weapon equipped.
-function check_range_lock()
-    if player.equipment.range ~= 'empty' then--and LockRange == 'ON' then
+--[[function check_range_lock()
+    if player.equipment.range ~= 'empty' then
         disable('range', 'ammo')
     else
         enable('range', 'ammo')
     end
 	
-end
+end--]]
 
 -- Called for custom player commands.
 --[[function job_self_command(cmdParams, eventArgs)

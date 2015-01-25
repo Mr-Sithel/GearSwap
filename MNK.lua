@@ -533,6 +533,19 @@ function job_buff_change(buff, gain)
     end
 end
 
+-- Called any time we attempt to handle automatic gear equips (ie: engaged or idle gear).
+function job_handle_equipping_gear(playerStatus, eventArgs)
+    if player.equipment.range ~= 'empty' then--and LockRange == 'ON' then
+        disable('range', 'ammo')
+    else
+        enable('range', 'ammo')
+    end	
+	if player.equipment.back == 'Mecisto. Mantle' then		
+		disable('back')
+	else
+		enable('back')
+	end
+end
 
 -------------------------------------------------------------------------------------------------------------------
 -- User code that supplements standard library decisions.
@@ -576,7 +589,6 @@ function update_melee_groups()
         classes.CustomMeleeGroups:append('Impetus')
     end
 end
-
 
 -- Select default macro book on initial load or subjob change.
 function select_default_macro_book()
